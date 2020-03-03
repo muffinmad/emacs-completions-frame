@@ -1,4 +1,4 @@
-;;; completions-frame.el --- Show completions frame in child frame -*- lexical-binding: t -*-
+;;; completions-frame.el --- Show completions in child frame -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2020 Andrii Kolomoiets
 
