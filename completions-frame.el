@@ -39,6 +39,12 @@ Background color is \"moved\" towards foreground color of selected frame
 to determine background color of completions frame."
   :type 'integer)
 
+(defcustom completions-frame-focus 'original
+  "Which frame should take focus once completions frame is shown."
+  :type '(choice (const :tag "Do nothing" nil)
+                 (const :tag "Select completions frame" completions)
+                 (const :tag "Select original frame" original)))
+
 (defvar completions-frame-frame nil)
 
 (defun completions-frame--shift-color (from to &optional by)
@@ -106,7 +112,12 @@ to determine background color of completions frame."
                           host-frame-w)
                        1.0
                      `(text-pixels . ,cw)))
-         (height . (text-pixels . ,ch)))))))
+         (height . (text-pixels . ,ch)))))
+    (when completions-frame-focus
+      (select-frame-set-input-focus
+       (if (eq completions-frame-focus 'completions)
+           completions-frame-frame
+         (frame-parameter completions-frame-frame 'parent-frame))))))
 
 (defun completions-frame-display (buffer &rest _args)
   "Display completions BUFFER in child frame.
