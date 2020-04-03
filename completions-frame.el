@@ -76,10 +76,12 @@ to determine background color of completions frame."
   (when (and (frame-live-p completions-frame-frame)
              (frame-visible-p completions-frame-frame))
     (let* ((comp-window (frame-selected-window completions-frame-frame))
-           (point-pos (pos-visible-in-window-p (window-point) nil t))
-           (host-edges (window-edges nil nil nil t))
-           (host-frame-w (frame-inner-width))
-           (host-frame-h (frame-inner-height))
+           (host-frame (frame-parameter completions-frame-frame 'parent-frame))
+           (host-window (frame-selected-window host-frame))
+           (point-pos (pos-visible-in-window-p (window-point) host-window t))
+           (host-edges (window-edges host-window nil nil t))
+           (host-frame-w (frame-inner-width host-frame))
+           (host-frame-h (frame-inner-height host-frame))
            (comp-edges (window-edges comp-window t nil t))
            (comp-border (frame-internal-border-width completions-frame-frame))
            (comp-left (frame-parameter completions-frame-frame 'left))
@@ -112,16 +114,17 @@ to determine background color of completions frame."
                           host-frame-w)
                        1.0
                      `(text-pixels . ,cw)))
-         (height . (text-pixels . ,ch)))))
-    (when completions-frame-focus
-      (select-frame-set-input-focus
-       (if (eq completions-frame-focus 'completions)
-           completions-frame-frame
-         (frame-parameter completions-frame-frame 'parent-frame))))))
+         (height . (text-pixels . ,ch))))
+      (when completions-frame-focus
+        (select-frame-set-input-focus
+         (if (eq completions-frame-focus 'completions)
+             completions-frame-frame
+           host-frame))))))
 
-(defun completions-frame-display (buffer &rest _args)
+(defun completions-frame-display (buffer alist)
   "Display completions BUFFER in child frame.
-Create frame if needed and set initial frame parameters."
+Create frame if needed and set initial frame parameters.
+ALIST is passed to `window--display-buffer'"
   (let* ((parent-frame-parameters `((parent-frame . ,(selected-frame))))
          (show-parameters `((height . 1)
                             (width . 1)
@@ -154,7 +157,7 @@ Create frame if needed and set initial frame parameters."
                                   (car (window-edges nil t nil t))
                                   (- (car (window-edges completion-window t nil t)))))))
                show-parameters))
-      (window--display-buffer buffer completion-window 'frame))))
+      (window--display-buffer buffer completion-window 'frame alist))))
 
 (defconst completions-frame--display-buffer-entry
   '("\\(\\*\\(Ido \\)?Completions\\)\\|\\(\\*Isearch completions\\)\\*" completions-frame-display)
@@ -167,9 +170,11 @@ Create frame if needed and set initial frame parameters."
   (cond
    (completions-frame-mode
     (add-to-list 'display-buffer-alist completions-frame--display-buffer-entry)
+    (add-hook 'temp-buffer-window-show-hook #'completions-frame-setup)
     (add-hook 'completion-setup-hook #'completions-frame-setup))
    (t
     (setq display-buffer-alist (delete completions-frame--display-buffer-entry display-buffer-alist))
+    (remove-hook 'temp-buffer-window-show-hook #'completions-frame-setup)
     (remove-hook 'completion-setup-hook #'completions-frame-setup)
     (when (frame-live-p completions-frame-frame)
       (delete-frame completions-frame-frame)))))
