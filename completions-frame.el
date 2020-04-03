@@ -78,7 +78,7 @@ to determine background color of completions frame."
     (let* ((comp-window (frame-selected-window completions-frame-frame))
            (host-frame (frame-parameter completions-frame-frame 'parent-frame))
            (host-window (frame-selected-window host-frame))
-           (point-pos (pos-visible-in-window-p (window-point) host-window t))
+           (point-pos (pos-visible-in-window-p (window-point host-window) host-window t))
            (host-edges (window-edges host-window nil nil t))
            (host-frame-w (frame-inner-width host-frame))
            (host-frame-h (frame-inner-height host-frame))
