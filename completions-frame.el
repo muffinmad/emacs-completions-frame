@@ -157,6 +157,7 @@ ALIST is passed to `window--display-buffer'"
                                   (car (window-edges nil t nil t))
                                   (- (car (window-edges completion-window t nil t)))))))
                show-parameters))
+      (make-frame-visible completions-frame-frame)
       (window--display-buffer buffer completion-window 'frame alist))))
 
 (defconst completions-frame--display-buffer-entry
