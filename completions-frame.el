@@ -114,12 +114,17 @@ to determine background color of completions frame."
                           host-frame-w)
                        1.0
                      `(text-pixels . ,cw)))
-         (height . (text-pixels . ,ch))))
-      (when completions-frame-focus
-        (select-frame-set-input-focus
-         (if (eq completions-frame-focus 'completions)
-             completions-frame-frame
-           host-frame))))))
+         (height . (text-pixels . ,ch)))))))
+
+(defun completions-frame-focus-setup ()
+  "Select frame according to `completions-frame-focus'."
+  (when (and completions-frame-focus
+             (frame-live-p completions-frame-frame)
+             (frame-visible-p completions-frame-frame))
+    (select-frame-set-input-focus
+     (if (eq completions-frame-focus 'completions)
+         completions-frame-frame
+       (frame-parameter completions-frame-frame 'parent-frame)))))
 
 (defun completions-frame-display (buffer alist)
   "Display completions BUFFER in child frame.
@@ -171,11 +176,11 @@ ALIST is passed to `window--display-buffer'"
   (cond
    (completions-frame-mode
     (add-to-list 'display-buffer-alist completions-frame--display-buffer-entry)
-    (add-hook 'temp-buffer-window-show-hook #'completions-frame-setup)
+    (add-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (add-hook 'completion-setup-hook #'completions-frame-setup))
    (t
     (setq display-buffer-alist (delete completions-frame--display-buffer-entry display-buffer-alist))
-    (remove-hook 'temp-buffer-window-show-hook #'completions-frame-setup)
+    (remove-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (remove-hook 'completion-setup-hook #'completions-frame-setup)
     (when (frame-live-p completions-frame-frame)
       (delete-frame completions-frame-frame)))))
