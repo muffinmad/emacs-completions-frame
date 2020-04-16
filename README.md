@@ -3,7 +3,9 @@ Show completions buffer in child frame
 
 ## How it looks like
 
-![completions-frame](./screenshots/completions-frame.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/muffinmad/emacs-completions-frame/master/screenshots/completions-frame.png" width="640">
+</p>
 
 ## Installation and usage
 
