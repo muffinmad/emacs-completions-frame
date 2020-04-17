@@ -51,6 +51,15 @@ Used as condition for `display-buffer-alist' entry which see.
 Before changing this value is better to turn off completions-frame mode."
   :type 'regexp)
 
+(defcustom completions-frame-width 1
+  "Completions frame initial width.
+The lesser value is then fewer columns will completions occupy.
+See `completion--insert-strings'.
+
+Floating-point value can specify width ratio.
+See frame size parameters manual."
+  :type 'number)
+
 (defvar completions-frame-frame nil)
 
 (defun completions-frame--shift-color (from to &optional by)
@@ -136,9 +145,10 @@ Before changing this value is better to turn off completions-frame mode."
   "Display completions BUFFER in child frame.
 Create frame if needed and set initial frame parameters.
 ALIST is passed to `window--display-buffer'"
-  (let* ((parent-frame-parameters `((parent-frame . ,(selected-frame))))
+  (let* ((frame (selected-frame))
+         (parent-frame-parameters `((parent-frame . ,frame)))
          (show-parameters `((height . 1)
-                            (width . 1)
+                            (width . ,(min completions-frame-width (frame-width frame)))
                             (background-color . ,(completions-frame-get-background-color)))))
     (if (frame-live-p completions-frame-frame)
         (modify-frame-parameters completions-frame-frame parent-frame-parameters)
