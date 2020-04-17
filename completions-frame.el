@@ -45,6 +45,12 @@ to determine background color of completions frame."
                  (const :tag "Select completions frame" completions)
                  (const :tag "Select original frame" original)))
 
+(defcustom completions-frame-condition "\\(\\*\\(Ido \\)?Completions\\)\\|\\(\\*Isearch completions\\)\\*"
+  "Regexp matching buffer names.
+Used as condition for `display-buffer-alist' entry which see.
+Before changing this value is better to turn off completions-frame mode."
+  :type 'regexp)
+
 (defvar completions-frame-frame nil)
 
 (defun completions-frame--shift-color (from to &optional by)
@@ -166,21 +172,17 @@ ALIST is passed to `window--display-buffer'"
       (prog1 (window--display-buffer buffer completion-window 'frame alist)
         (set-window-dedicated-p completion-window 'soft)))))
 
-(defconst completions-frame--display-buffer-entry
-  '("\\(\\*\\(Ido \\)?Completions\\)\\|\\(\\*Isearch completions\\)\\*" completions-frame-display)
-  "Entry for `display-buffer-alist'.")
-
 ;;;###autoload
 (define-minor-mode completions-frame-mode
   "Show completions in child frame."
   :global t
   (cond
    (completions-frame-mode
-    (add-to-list 'display-buffer-alist completions-frame--display-buffer-entry)
+    (add-to-list 'display-buffer-alist `(,completions-frame-condition completions-frame-display))
     (add-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (add-hook 'completion-setup-hook #'completions-frame-setup))
    (t
-    (setq display-buffer-alist (delete completions-frame--display-buffer-entry display-buffer-alist))
+    (setq display-buffer-alist (delete `(,completions-frame-condition completions-frame-display) display-buffer-alist))
     (remove-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (remove-hook 'completion-setup-hook #'completions-frame-setup)
     (when (frame-live-p completions-frame-frame)
