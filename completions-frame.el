@@ -25,7 +25,7 @@
 
 ;;; Commentary:
 
-;; Show completions in child frame.
+;; Show *Completions* buffer in child frame.
 
 ;;; Code:
 
