@@ -1,3 +1,6 @@
+[![License GPL 3](https://img.shields.io/badge/license-GPL_3-green.svg)](http://www.gnu.org/copyleft/gpl.html)
+[![MELPA](https://melpa.org/packages/completions-frame-badge.svg)](https://melpa.org/#/completions-frame)
+
 # emacs-completions-frame
 Show \*Completions\* buffer in child frame.
 
@@ -22,7 +25,9 @@ This package is mainly for those who prefer built-in `completion-at-point` for c
 
 ## Installation and usage
 
-Download `completions-frame.el` and run:
+`completions-frame` is available on [MELPA](https://melpa.org/#/completions-frame).
+
+Alternatively, you can download `completions-frame.el` and run:
 
 <kbd>M-x</kbd> `package-install-file` <kbd>RET</kbd> `<path-to-completions-frame-el>` <kbd>RET</kbd>
 
