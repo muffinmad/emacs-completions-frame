@@ -72,7 +72,7 @@ See frame size parameters manual."
 (defvar completions-frame-frame nil)
 
 (defun completions-frame--shift-color (from to &optional by)
-  "Move color FROM towards TO by BY.  If BY is ommited, `mini-frame-color-shift-step' is used."
+  "Move color FROM towards TO by BY.  If BY is omitted, `mini-frame-color-shift-step' is used."
   (let ((f (ash from -8))
         (by (or by completions-frame-color-shift-step)))
     (cond
