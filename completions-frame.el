@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.0
+;; Package-Version: 1.1
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -56,8 +56,7 @@ to determine background color of completions frame."
 
 (defcustom completions-frame-condition "\\(\\*\\(Ido \\)?Completions\\)\\|\\(\\*Isearch completions\\)\\*"
   "Regexp matching buffer names.
-Used as condition for `display-buffer-alist' entry which see.
-Before changing this value is better to turn off completions-frame mode."
+Used as condition for `display-buffer-alist' entry which see."
   :type 'regexp)
 
 (defcustom completions-frame-width 1
@@ -70,6 +69,13 @@ See frame size parameters manual."
   :type 'number)
 
 (defvar completions-frame-frame nil)
+
+(defun completions-frame-condition-func (buffer-name _action)
+  "Check if `completions-frame-condition' match BUFFER-NAME.
+Also checks for `display-graphic-p'.
+Used as condition for `display-buffer-alist' entry which see."
+  (and (display-graphic-p)
+       (string-match-p completions-frame-condition buffer-name)))
 
 (defun completions-frame--shift-color (from to &optional by)
   "Move color FROM towards TO by BY.  If BY is omitted, `mini-frame-color-shift-step' is used."
@@ -198,11 +204,11 @@ ALIST is passed to `window--display-buffer'"
   :global t
   (cond
    (completions-frame-mode
-    (add-to-list 'display-buffer-alist `(,completions-frame-condition completions-frame-display))
+    (add-to-list 'display-buffer-alist '(completions-frame-condition-func completions-frame-display))
     (add-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (add-hook 'completion-setup-hook #'completions-frame-setup))
    (t
-    (setq display-buffer-alist (delete `(,completions-frame-condition completions-frame-display) display-buffer-alist))
+    (setq display-buffer-alist (delete '(completions-frame-condition-func completions-frame-display) display-buffer-alist))
     (remove-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (remove-hook 'completion-setup-hook #'completions-frame-setup)
     (when (frame-live-p completions-frame-frame)
