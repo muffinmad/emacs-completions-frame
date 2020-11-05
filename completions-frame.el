@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.1
+;; Package-Version: 1.2
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -100,6 +100,13 @@ Used as condition for `display-buffer-alist' entry which see."
   "Call `make-frame-invisible' with FRAME and FORCE and FRAME's parent frame."
   (make-frame-invisible frame force)
   (select-frame-set-input-focus (frame-parameter frame 'parent-frame)))
+
+(defun completions-frame--minibuffer-exit ()
+  "Function to run on minibuffer exit.
+Hide completion frame if there are visible one."
+  (when (and (frame-live-p completions-frame-frame)
+             (frame-visible-p completions-frame-frame))
+    (completions-frame-hide completions-frame-frame)))
 
 (defun completions-frame-setup ()
   "Completion setup hook.  Set completions frame size and position."
@@ -206,11 +213,13 @@ ALIST is passed to `window--display-buffer'"
    (completions-frame-mode
     (add-to-list 'display-buffer-alist '(completions-frame-condition-func completions-frame-display))
     (add-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
-    (add-hook 'completion-setup-hook #'completions-frame-setup))
+    (add-hook 'completion-setup-hook #'completions-frame-setup)
+    (add-hook 'minibuffer-exit-hook #'completions-frame--minibuffer-exit))
    (t
     (setq display-buffer-alist (delete '(completions-frame-condition-func completions-frame-display) display-buffer-alist))
     (remove-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (remove-hook 'completion-setup-hook #'completions-frame-setup)
+    (remove-hook 'minibuffer-exit-hook #'completions-frame--minibuffer-exit)
     (when (frame-live-p completions-frame-frame)
       (delete-frame completions-frame-frame)))))
 
