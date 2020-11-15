@@ -23,6 +23,16 @@ This package is mainly for those who prefer built-in `completion-at-point` for c
   <img src="https://raw.githubusercontent.com/muffinmad/emacs-completions-frame/master/screenshots/eval-completions.png" width="640">
 </p>
 
+### Gnome shell (and friends) does not resize Emacs child frames
+
+See [this issue](https://gitlab.gnome.org/GNOME/mutter/-/issues/840).
+
+For a workaround, use the following code in initialization file:
+
+```elisp
+(setq x-gtk-resize-child-frames 'resize-mode)
+```
+
 ## Installation and usage
 
 `completions-frame` is available on [MELPA](https://melpa.org/#/completions-frame).
