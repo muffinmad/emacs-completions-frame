@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.2.1
+;; Package-Version: 1.2.2
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -112,6 +112,7 @@ Hide completion frame if there are visible one."
   "Completion setup hook.  Set completions frame size and position."
   (when (and (frame-live-p completions-frame-frame)
              (frame-visible-p completions-frame-frame))
+    (make-frame-invisible completions-frame-frame)
     (let* ((comp-window (frame-selected-window completions-frame-frame))
            (host-frame (frame-parameter completions-frame-frame 'parent-frame))
            (host-window (frame-selected-window host-frame))
@@ -151,17 +152,13 @@ Hide completion frame if there are visible one."
                           host-frame-w)
                        1.0
                      `(text-pixels . ,cw)))
-         (height . (text-pixels . ,ch)))))))
-
-(defun completions-frame-focus-setup ()
-  "Select frame according to `completions-frame-focus'."
-  (when (and completions-frame-focus
-             (frame-live-p completions-frame-frame)
-             (frame-visible-p completions-frame-frame))
-    (select-frame-set-input-focus
-     (if (eq completions-frame-focus 'completions)
-         completions-frame-frame
-       (frame-parameter completions-frame-frame 'parent-frame)))))
+         (height . (text-pixels . ,ch))))
+      (make-frame-visible completions-frame-frame)
+      (when completions-frame-focus
+        (select-frame-set-input-focus
+         (if (eq completions-frame-focus 'completions)
+             completions-frame-frame
+           host-frame))))))
 
 (defun completions-frame-display (buffer alist)
   "Display completions BUFFER in child frame.
@@ -213,12 +210,10 @@ ALIST is passed to `window--display-buffer'"
   (cond
    (completions-frame-mode
     (add-to-list 'display-buffer-alist '(completions-frame-condition-func completions-frame-display))
-    (add-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (add-hook 'completion-setup-hook #'completions-frame-setup)
     (add-hook 'minibuffer-exit-hook #'completions-frame--minibuffer-exit))
    (t
     (setq display-buffer-alist (delete '(completions-frame-condition-func completions-frame-display) display-buffer-alist))
-    (remove-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (remove-hook 'completion-setup-hook #'completions-frame-setup)
     (remove-hook 'minibuffer-exit-hook #'completions-frame--minibuffer-exit)
     (when (frame-live-p completions-frame-frame)
