@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.2
+;; Package-Version: 1.2.1
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -61,7 +61,7 @@ Used as condition for `display-buffer-alist' entry which see."
 
 (defcustom completions-frame-width 1
   "Completions frame initial width.
-The lesser value is then fewer columns will completions occupy.
+The lesser value the fewer columns will completions occupy.
 See `completion--insert-strings'.
 
 Floating-point value can specify width ratio.
@@ -176,7 +176,8 @@ ALIST is passed to `window--display-buffer'"
         (modify-frame-parameters completions-frame-frame parent-frame-parameters)
       (setq completions-frame-frame
             (let ((after-make-frame-functions nil))
-              (make-frame (append '((visibility . nil)
+              (make-frame (append '((tool-bar-lines . 0)
+                                    (visibility . nil)
                                     (auto-hide-function . completions-frame-hide)
                                     (user-position . t)
                                     (user-size . t)
