@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.2.3
+;; Package-Version: 1.2.4
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -67,6 +67,15 @@ See `completion--insert-strings'.
 Floating-point value can specify width ratio.
 See frame size parameters manual."
   :type 'number)
+
+(defcustom completions-frame-border-width 3
+  "Completions frame internal border width."
+  :type 'number)
+
+(defcustom completions-frame-max-height nil
+  "Completions frame maximum height."
+  :type '(choice (const :tag "As much as possible" nil)
+                 (integer)))
 
 (defvar completions-frame-frame nil)
 
@@ -132,7 +141,11 @@ Hide completion frame if there are visible one."
            (point-yb (+ point-y (frame-char-height)))
            (avail-top point-y)
            (avail-bot (- host-frame-h point-yb))
-           (ch (min comp-h (max avail-top avail-bot)))
+           (ch (min (if completions-frame-max-height
+                        (min comp-h (* completions-frame-max-height
+                                       (frame-char-height completions-frame-frame)))
+                      comp-h
+                      (max avail-top avail-bot))))
            (cw (min comp-w host-frame-w))
            (place-bottom (<= ch avail-bot))
            (ct (max 0
@@ -179,7 +192,7 @@ ALIST is passed to `window--display-buffer'"
         (modify-frame-parameters completions-frame-frame parent-frame-parameters)
       (setq completions-frame-frame
             (let ((after-make-frame-functions nil))
-              (make-frame (append '((tool-bar-lines . 0)
+              (make-frame (append `((tool-bar-lines . 0)
                                     (visibility . nil)
                                     (auto-hide-function . completions-frame-hide)
                                     (user-position . t)
@@ -187,7 +200,7 @@ ALIST is passed to `window--display-buffer'"
                                     (keep-ratio . t)
                                     (minibuffer . nil)
                                     (undecorated . t)
-                                    (internal-border-width . 3)
+                                    (internal-border-width . ,completions-frame-border-width)
                                     (drag-internal-border . t)
                                     (drag-with-mode-line . t)
                                     (drag-with-header-line . t)
