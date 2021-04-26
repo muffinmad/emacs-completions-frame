@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.2.4
+;; Package-Version: 1.3
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -222,6 +222,40 @@ ALIST is passed to `window--display-buffer'"
       (prog1 (window--display-buffer buffer completion-window 'frame alist)
         (set-window-dedicated-p completion-window 'soft)))))
 
+(defun completions-frame-next ()
+  "Select next completion in the completions buffer."
+  (interactive)
+  (with-selected-frame completions-frame-frame
+    (next-completion 1)))
+
+(defun completions-frame-previous ()
+  "Select previous completion in the completions buffer."
+  (interactive)
+  (with-selected-frame completions-frame-frame
+    (next-completion -1)))
+
+(defun completions-frame-accept ()
+  "Accept current completion in the completions buffer."
+  (interactive)
+  (with-selected-frame completions-frame-frame
+    (choose-completion)))
+
+(defvar completions-frame-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap next-line] #'completions-frame-next)
+    (define-key map [down] #'completions-frame-next)
+    (define-key map [remap previous-line] #'completions-frame-previous)
+    (define-key map [up] #'completions-frame-previous)
+    (define-key map (kbd "RET") #'completions-frame-accept)
+    map))
+
+(defun completions-frame--cir-mode-hook ()
+  "Completion in region mode hook."
+  (when completion-in-region-mode
+    (setcdr (assq #'completion-in-region-mode
+                  minor-mode-overriding-map-alist)
+            completions-frame-map)))
+
 ;;;###autoload
 (define-minor-mode completions-frame-mode
   "Show completions in child frame."
@@ -231,12 +265,14 @@ ALIST is passed to `window--display-buffer'"
     (add-to-list 'display-buffer-alist '(completions-frame-condition-func completions-frame-display))
     (add-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (add-hook 'completion-setup-hook #'completions-frame-setup)
-    (add-hook 'minibuffer-exit-hook #'completions-frame--minibuffer-exit))
+    (add-hook 'minibuffer-exit-hook #'completions-frame--minibuffer-exit)
+    (add-hook 'completion-in-region-mode-hook #'completions-frame--cir-mode-hook))
    (t
     (setq display-buffer-alist (delete '(completions-frame-condition-func completions-frame-display) display-buffer-alist))
     (remove-hook 'temp-buffer-window-show-hook #'completions-frame-focus-setup)
     (remove-hook 'completion-setup-hook #'completions-frame-setup)
     (remove-hook 'minibuffer-exit-hook #'completions-frame--minibuffer-exit)
+    (remove-hook 'completion-in-region-mode-hook #'completions-frame--cir-mode-hook)
     (when (frame-live-p completions-frame-frame)
       (delete-frame completions-frame-frame)))))
 
