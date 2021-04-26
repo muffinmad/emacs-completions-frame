@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.3
+;; Package-Version: 1.3.1
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -222,30 +222,30 @@ ALIST is passed to `window--display-buffer'"
       (prog1 (window--display-buffer buffer completion-window 'frame alist)
         (set-window-dedicated-p completion-window 'soft)))))
 
-(defun completions-frame-next ()
-  "Select next completion in the completions buffer."
-  (interactive)
-  (with-selected-frame completions-frame-frame
-    (next-completion 1)))
+(defmacro completions-frame--with-frame (name if-not-comp &rest if-comp)
+  "Declare NAME to execute IF-COMP or IF-NOT-COMP.
+Execute IF-COMP if `completions-frame-frame' is visible.
+Execute IF-NOT-COMP otherwise."
+  `(defun ,name ()
+     (interactive)
+     (if (and (frame-live-p completions-frame-frame)
+              (frame-visible-p completions-frame-frame))
+         (with-selected-frame completions-frame-frame
+           ,@if-comp)
+       (completion-in-region-mode -1)
+       (call-interactively ,if-not-comp))))
 
-(defun completions-frame-previous ()
-  "Select previous completion in the completions buffer."
-  (interactive)
-  (with-selected-frame completions-frame-frame
-    (next-completion -1)))
-
-(defun completions-frame-accept ()
-  "Accept current completion in the completions buffer."
-  (interactive)
-  (with-selected-frame completions-frame-frame
-    (choose-completion)))
+(completions-frame--with-frame
+ completions-frame-next #'next-line (next-completion 1))
+(completions-frame--with-frame
+ completions-frame-previous #'previous-line (next-completion -1))
+(completions-frame--with-frame
+ completions-frame-accept (global-key-binding (kbd "RET")) (choose-completion))
 
 (defvar completions-frame-map
   (let ((map (make-sparse-keymap)))
     (define-key map [remap next-line] #'completions-frame-next)
-    (define-key map [down] #'completions-frame-next)
     (define-key map [remap previous-line] #'completions-frame-previous)
-    (define-key map [up] #'completions-frame-previous)
     (define-key map (kbd "RET") #'completions-frame-accept)
     map))
 
