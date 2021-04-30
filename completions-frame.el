@@ -5,7 +5,7 @@
 ;; Author: Andrii Kolomoiets <andreyk.mad@gmail.com>
 ;; Keywords: frames
 ;; URL: https://github.com/muffinmad/emacs-completions-frame
-;; Package-Version: 1.3.1
+;; Package-Version: 1.3.2
 ;; Package-Requires: ((emacs "26.1"))
 
 ;; This file is NOT part of GNU Emacs.
@@ -240,7 +240,9 @@ Execute IF-NOT-COMP otherwise."
 (completions-frame--with-frame
  completions-frame-previous #'previous-line (next-completion -1))
 (completions-frame--with-frame
- completions-frame-accept (global-key-binding (kbd "RET")) (choose-completion))
+ completions-frame-accept (or (local-key-binding (kbd "RET"))
+                              (global-key-binding (kbd "RET")))
+ (choose-completion))
 
 (defvar completions-frame-map
   (let ((map (make-sparse-keymap)))
