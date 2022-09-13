@@ -1,6 +1,10 @@
 [![License GPL 3](https://img.shields.io/badge/license-GPL_3-green.svg)](http://www.gnu.org/copyleft/gpl.html)
 [![MELPA](https://melpa.org/packages/completions-frame-badge.svg)](https://melpa.org/#/completions-frame)
 
+# Deprecated
+
+This package is not working with recent Emacs version and there are no plans to support it. Please use awesome [corfu](https://github.com/minad/corfu) instead wich does the same thing but in more nicely way.
+
 # emacs-completions-frame
 Show \*Completions\* buffer in child frame.
 
